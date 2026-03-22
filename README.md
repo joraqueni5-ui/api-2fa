@@ -7,7 +7,7 @@ API REST con autenticación de dos factores (2FA), dispositivos de confianza y C
 - Laravel 11
 - Laravel Sanctum (tokens)
 - MySQL
-- Mailtrap (envío de correos OTP)
+- Gmail (envío de correos OTP)
 
 ## Requisitos previos
 
@@ -21,7 +21,7 @@ API REST con autenticación de dos factores (2FA), dispositivos de confianza y C
 ### 1. Clonar el repositorio
 
 ```bash
-git clone <https://github.com/joraqueni5-ui/api-2fa.git>
+git clone https://github.com/joraqueni5-ui/api-2fa.git
 cd api-2fa
 ```
 
@@ -54,16 +54,16 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-### 6. Configurar Mailtrap en .env
+### 6. Configurar Gmail en .env
 
 ```env
 MAIL_MAILER=smtp
-MAIL_HOST=sandbox.smtp.mailtrap.io
-MAIL_PORT=2525
-MAIL_USERNAME=e00dd0c2ef0651
-MAIL_PASSWORD=5a0a95a83a7ab0
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=tucorreo@gmail.com
+MAIL_PASSWORD=tu_clave_de_aplicacion
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS="noreply@api2fa.com"
+MAIL_FROM_ADDRESS="tucorreo@gmail.com"
 MAIL_FROM_NAME="API 2FA"
 ```
 
@@ -92,17 +92,17 @@ El servidor estará disponible en: `http://127.0.0.1:8000`
 
 ### Autenticación (públicos)
 
-| Método | Endpoint | Descripción |
-
-| POST | /api/auth/login | Login con email y password |
-| POST | /api/auth/verify-otp | Verificar código OTP |
+| Método | Endpoint             | Descripción                |
+| ------ | -------------------- | -------------------------- |
+| POST   | /api/auth/login      | Login con email y password |
+| POST   | /api/auth/verify-otp | Verificar código OTP       |
 
 ### Autenticación (protegidos)
 
-| Método | Endpoint | Descripción |
-
-| POST | /api/auth/logout | Cerrar sesión |
-| GET | /api/auth/me | Ver usuario autenticado |
+| Método | Endpoint         | Descripción             |
+| ------ | ---------------- | ----------------------- |
+| POST   | /api/auth/logout | Cerrar sesión           |
+| GET    | /api/auth/me     | Ver usuario autenticado |
 
 ### Servicios (protegidos con Bearer Token)
 
@@ -116,33 +116,10 @@ El servidor estará disponible en: `http://127.0.0.1:8000`
 
 ## Flujo de autenticación 2FA
 
-```
-1. POST /api/auth/login
-   → Credenciales correctas + dispositivo NO de confianza
-   → Sistema envía OTP al correo (válido 10 minutos)
+1. POST /api/auth/login → Sistema envía OTP al correo (válido 10 minutos)
+2. POST /api/auth/verify-otp → Retorna Bearer Token
+3. Próximo login desde dispositivo de confianza → Se omite el OTP
 
-2. POST /api/auth/verify-otp
-   → Validar OTP recibido por correo
-   → Retorna Bearer Token para usar en requests protegidos
-   → Con remember_device=true guarda el dispositivo como de confianza
+## Repositorio Frontend
 
-3. Próximo login desde dispositivo de confianza:
-   → Enviar header: X-Device-Token: {device_token}
-   → Sistema omite el OTP y da el token directamente
-```
-
-## Ejemplo de uso con dispositivo de confianza
-
-Agregar este header en el login:
-
-```
-X-Device-Token: uuid-del-dispositivo-guardado
-```
-
-## Validación de foto en Base64
-
-El campo `foto_persona` acepta imágenes en formato Base64:
-
-- Con prefijo: `data:image/png;base64,xxxxx`
-- Sin prefijo: `xxxxx` (solo el string Base64)
-- Formatos permitidos: jpeg, png, gif, webp
+https://github.com/joraqueni5-ui/Frontend-web
