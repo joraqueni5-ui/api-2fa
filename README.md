@@ -123,3 +123,7 @@ El servidor estará disponible en: `http://127.0.0.1:8000`
 ## Repositorio Frontend
 
 https://github.com/joraqueni5-ui/Frontend-web
+
+## autor
+
+nombre Jhonatan Oraqueni Condori
